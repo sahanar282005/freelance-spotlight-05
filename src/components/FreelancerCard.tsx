@@ -4,7 +4,7 @@ import { Badge } from "./ui/badge";
 import { Star, MapPin } from "lucide-react";
 
 interface FreelancerCardProps {
-  id: number;
+  id: string | number;
   name: string;
   title: string;
   location: string;

@@ -1,19 +1,31 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/browse", label: "Browse Freelancers" },
-    { path: "/dashboard", label: "Dashboard" },
+    ...(user ? [{ path: "/dashboard", label: "Dashboard" }, { path: "/messages", label: "Messages" }] : []),
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,12 +54,36 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link to="/dashboard">Sign In</Link>
-            </Button>
-            <Button variant="hero" asChild>
-              <Link to="/dashboard">Get Started</Link>
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button variant="hero" asChild>
+                  <Link to="/auth">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,16 +113,24 @@ const Header = () => {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="ghost" asChild>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    Sign In
-                  </Link>
-                </Button>
-                <Button variant="hero" asChild>
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    Get Started
-                  </Link>
-                </Button>
+                {user ? (
+                  <Button variant="ghost" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" asChild>
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button variant="hero" asChild>
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                        Get Started
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
