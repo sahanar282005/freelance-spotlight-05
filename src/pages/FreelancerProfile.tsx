@@ -78,9 +78,6 @@ const FreelancerProfile = () => {
       if (projectsError) throw projectsError;
 
       setProjects(projectsData || []);
-
-      // Increment profile view count
-      await supabase.rpc("increment_profile_views", { profile_id: id });
     } catch (error: any) {
       toast({
         variant: "destructive",
